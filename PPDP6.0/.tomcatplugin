@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tomcatProjectProperties>
+    <rootDir>/WebContent</rootDir>
+    <exportSource>false</exportSource>
+    <reloadable>true</reloadable>
+    <redirectLogger>false</redirectLogger>
+    <updateXml>false</updateXml>
+    <warLocation></warLocation>
+    <extraInfo></extraInfo>
+    <webPath>/PPDP</webPath>
+    <webClassPathEntries>
+        <webClassPathEntry>/PPDP/build/classes</webClassPathEntry>
+    </webClassPathEntries>
+</tomcatProjectProperties>
