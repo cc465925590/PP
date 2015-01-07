@@ -27,7 +27,7 @@ public class WekaType {
 		filename = filename + ".arff";
 		FileOutputStream fos = new FileOutputStream(filename);
 		PrintStream p = new PrintStream(fos);
-		p.println("@relation adultreponses");
+		p.println("@relation Anatomizationadultreponses");
 		p.println();
 		p.println("@attribute age numeric");
 		p.println("@attribute sex {Male,Female}");
@@ -64,12 +64,13 @@ public class WekaType {
 	 * 
 	 * @throws FileNotFoundException
 	 */
-	public void DataToWekaForOrig(String filename) throws FileNotFoundException {
+	public void DataToWekaForOrig(String filename, String tablename)
+			throws FileNotFoundException {
 		LinkedList<Map<String, Object>> recordList = new LinkedList<Map<String, Object>>();
 		AccessConnet ac = new AccessConnet();
 		ac.connect();
 		try {
-			String orderstr = "select  * from " + Common.TABLENAME;
+			String orderstr = "select  * from " + tablename;
 			int i = 0;
 			System.out.println(orderstr);
 			PreparedStatement pstmt = ac.con.prepareStatement(orderstr);
@@ -94,7 +95,7 @@ public class WekaType {
 		filename = filename + ".arff";
 		FileOutputStream fos = new FileOutputStream(filename);
 		PrintStream p = new PrintStream(fos);
-		p.println("@relation adultreponses");
+		p.println("@relation originaladultreponses");
 		p.println();
 		p.println("@attribute age numeric");
 		p.println("@attribute sex {Male,Female}");
@@ -121,11 +122,56 @@ public class WekaType {
 		}
 	}
 
+	/**
+	 * 用于对List<List<Map<String, Object>>>格式在weka应用的格式处理
+	 * 
+	 * 2015.1.7
+	 * 
+	 * @throws FileNotFoundException
+	 */
+	public void DataToWeka(String filename,
+			List<List<Map<String, Object>>> BlockDetailListRandResult)
+			throws FileNotFoundException {
+		filename = filename + ".arff";
+		FileOutputStream fos = new FileOutputStream(filename);
+		@SuppressWarnings("resource")
+		PrintStream p = new PrintStream(fos);
+		p.println("@relation originaladultreponses");
+		p.println();
+		p.println("@attribute age numeric");
+		p.println("@attribute sex {Male,Female}");
+		p.println("@attribute education {10th,11th,12th,1st-4th,5th-6th,7th-8th,9th,Assoc-acdm,Assoc-voc,Bachelors,Doctorate,HS-grad,Masters,Preschool,Prof-school,Some-college}");
+		p.println("@attribute marital_status {Divorced,Married-AF-spouse,Married-civ-spouse,Married-spouse-absent,Never-married,Separated,Widowed}");
+		p.println("@attribute workclass {Federal-gov,Local-gov,Private,Self-emp-inc,Self-emp-not-inc,State-gov}");
+		p.println("@attribute relationship {Husband,Not-in-family,Other-relative,Own-child,Unmarried,Wife}");
+		p.println("@attribute race {Amer-Indian-Eskimo,Asian-Pac-Islander,Black,Other,White}");
+		p.println("@attribute occupation {Adm-clerical,Armed-Forces,Craft-repair,Exec-managerial,Farming-fishing,Handlers-cleaners,Machine-op-inspct,Other-service,Priv-house-serv,Prof-specialty,Protective-serv,Sales,Tech-support,Transport-moving}");
+		p.println();
+		p.println("@data");
+		String[] NSA = { "age", "sex", "education", "marital_status",
+				"workclass", "relationship", "race" };
+		String SA = "occupation";
+		for (List<Map<String, Object>> recordList : BlockDetailListRandResult) {
+			for (int j = 0; j < recordList.size(); j++) {
+				StringBuffer record = new StringBuffer("");
+				for (String temp : NSA) {
+					record = record.append(recordList.get(j).get(temp)
+							.toString().trim()
+							+ ",");
+				}
+				record.append(recordList.get(j).get(SA).toString().trim());
+				p.println(record);
+			}
+		}
+	}
+
 	public static void main(String[] args) {
 		WekaType wekatype = new WekaType();
 		System.out.println("test");
+		String filename = "D:/WekaData/adult_test";
+		String tablename = "adult_test";
 		try {
-			wekatype.DataToWekaForOrig("D:/Original");
+			wekatype.DataToWekaForOrig(filename, tablename);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

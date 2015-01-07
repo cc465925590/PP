@@ -155,7 +155,8 @@ public class ShowPartition extends HttpServlet {
 		List<List<String>> SABlockList = anatomization.RandomSwap(
 				anatomization.STBlockList, "occupation");// 用于生成随机替换的SA集合
 		WekaType wekatype = new WekaType();
-		wekatype.DataToFileForAT("D:/Anatomization", test.resultList, SABlockList);// 生成用于weka的数据文件
+		wekatype.DataToFileForAT("D:/WekaData/Anatomization", test.resultList,
+				SABlockList);// 生成用于weka的数据文件
 		// end
 		RequestDispatcher dispatcher = request
 				.getRequestDispatcher("Anatomization.jsp");
@@ -288,6 +289,8 @@ public class ShowPartition extends HttpServlet {
 			BlockDetailListRandResult.add(NewBlock);
 		}
 		this.wangke.WangkeRandomSAResult = BlockDetailListRandResult;
+		WekaType wekatype = new WekaType();
+		wekatype.DataToWeka("D:/WekaData/wangke", BlockDetailListRandResult);
 		request.setAttribute("resultList", BlockDetailListRandResult);
 		// 计算查询准确率
 		/*
