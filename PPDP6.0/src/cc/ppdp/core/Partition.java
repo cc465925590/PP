@@ -27,7 +27,10 @@ public class Partition {
 	private Boolean preflag = false;// true表示前面的块不满足L
 	private Map<Object, Integer> preSAmap = new HashMap<Object, Integer>();
 
-	public void DoPartition(String[] NSA, int l) {
+	/**
+	 * 参数type用于选择判断块的条件 (于2015.1.9修改，增加type参数)
+	 */
+	public void DoPartition(String[] NSA, int l, int type) {
 		LinkedList<Map<String, Object>> BlockSet = new LinkedList<Map<String, Object>>();
 		ac = new AccessConnet();
 		ac.connect();
@@ -67,7 +70,7 @@ public class Partition {
 
 		// String[] str = { "sex", "education" };
 		try {
-			Partitioning(BlockSet, l, NSA, 0, "occupation");
+			Partitioning(BlockSet, l, NSA, 0, "occupation", type);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -77,7 +80,7 @@ public class Partition {
 	}
 
 	public void Partitioning(LinkedList<Map<String, Object>> BlockSet, int l,
-			String[] NSA, int i, String SA) throws SQLException {
+			String[] NSA, int i, String SA, int type) throws SQLException {
 		if (i == NSA.length) {
 			resultList.add(BlockSet);// 完成算法
 			return;
@@ -121,7 +124,7 @@ public class Partition {
 					}
 				}
 
-				if (!this.IsLDiversity(SAmap, l, temp.size())) {// 如果前一个块满足L，当前块不满足，先记录下当前块
+				if (!this.CheckBlock(SAmap, l, temp.size(), type)) {// 如果前一个块满足L，当前块不满足，先记录下当前块
 					preflag = true;
 					for (Map<String, Object> adult : temp) {
 						pretemp.add(adult);
@@ -196,7 +199,7 @@ public class Partition {
 					tempList.add(adult);
 				}
 				pretemp = tempList;
-				if (this.IsLDiversity(preSAmap, l, pretemp.size())) {// 如果合并之后满足L
+				if (this.CheckBlock(preSAmap, l, pretemp.size(), type)) {// 如果合并之后满足L
 					lastSet.clear();
 					for (Map<String, Object> adult : pretemp) {
 						lastSet.add(adult);
@@ -220,7 +223,7 @@ public class Partition {
 			if (isDiversity != null && isDiversity) {
 				resultList.add(temp);// 完成算法
 			} else {
-				Partitioning(temp, l, NSA, i + 1, SA);
+				Partitioning(temp, l, NSA, i + 1, SA, type);
 			}
 
 		}
@@ -230,7 +233,8 @@ public class Partition {
 	/**
 	 * 判断是否满足L条件
 	 */
-	public Boolean IsLDiversity(Map<Object, Integer> SAmap, int L, int recordsum) {
+	private Boolean IsLDiversity(Map<Object, Integer> SAmap, int L,
+			int recordsum) {
 		if (SAmap.size() < L) {
 			return false;
 		} else {
@@ -242,6 +246,55 @@ public class Partition {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * 判断是否满足递归-(c,L)多样性 这里使用(1,L)多样性,即取c=1
+	 * 
+	 * @author cc 2015.1.9
+	 */
+	private Boolean IsRecursiveDiversity(Map<Object, Integer> SAmap, int L) {
+		Boolean flag = null;
+		if (SAmap.size() < L) {
+			return false;
+		}
+		// 先对SAmap按个数排序
+		int[] SAcount = new int[SAmap.size()];
+		Set<Object> saset = SAmap.keySet();
+		int i = 0;
+		for (Object obj : saset) {
+			SAcount[i] = SAmap.get(obj);
+		}
+		// 从大到小排序
+		for (int x = 0; x < SAcount.length; x++)
+			for (int y = x + 1; y < SAcount.length; y++)
+				if (SAcount[x] < SAcount[y]) {
+					int temp = SAcount[x];
+					SAcount[x] = SAcount[y];
+					SAcount[y] = temp;
+				}
+		int sum = 0;
+		for (int x = L - 1; x < SAcount.length; x++)
+			sum += SAcount[x];
+		if (sum > SAcount[0])
+			return flag = true;
+		else
+			return flag;
+	}
+
+	/**
+	 * 选择块的校验器
+	 * 
+	 * @author cc 2015.1.9
+	 */
+	public Boolean CheckBlock(Map<Object, Integer> SAmap, int L, int recordsum,
+			int type) {
+		Boolean flag = null;
+		if (type == 0)// 类型0使用L-多样性条件检测
+			flag = IsLDiversity(SAmap, L, recordsum);
+		else if (type == 1)// 类型1使用递归(c,L)-多样性条件检测
+			flag = IsRecursiveDiversity(SAmap, L);
+		return flag;
 	}
 
 	/**

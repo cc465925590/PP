@@ -6,6 +6,8 @@ import java.io.PrintStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -165,16 +167,27 @@ public class WekaType {
 		}
 	}
 
+	public String TimeToStr() {
+		StringBuffer time = new StringBuffer();
+		Calendar calendar = null;
+		calendar = new GregorianCalendar();
+		time.append(calendar.get(Calendar.HOUR_OF_DAY));
+		time.append(calendar.get(Calendar.MINUTE));
+		time.append(calendar.get(Calendar.SECOND));
+		return time.toString();// ∑µªÿ ±∑÷√Î
+	}
+
 	public static void main(String[] args) {
+
 		WekaType wekatype = new WekaType();
 		System.out.println("test");
 		String filename = "D:/WekaData/adult_test";
 		String tablename = "adult_test";
 		try {
 			wekatype.DataToWekaForOrig(filename, tablename);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+		} catch (FileNotFoundException e) { // TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 	}
 }
