@@ -264,6 +264,7 @@ public class Partition {
 		int i = 0;
 		for (Object obj : saset) {
 			SAcount[i] = SAmap.get(obj);
+			i++;
 		}
 		// 从大到小排序
 		for (int x = 0; x < SAcount.length; x++)
@@ -279,7 +280,7 @@ public class Partition {
 		if (sum > SAcount[0])
 			return flag = true;
 		else
-			return flag;
+			return flag = false;
 	}
 
 	/**
