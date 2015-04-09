@@ -3,10 +3,12 @@ package cc.ppdp.view;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -23,6 +25,7 @@ import cc.ppdp.core.WangKePartition;
 import cc.ppdp.model.ColumnColrelation;
 import cc.ppdp.model.SubBlock;
 import cc.ppdp.util.Common;
+import cc.ppdp.util.DataUtil;
 import cc.ppdp.util.WekaType;
 
 public class ShowPartition extends HttpServlet {
@@ -32,7 +35,7 @@ public class ShowPartition extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Partition test = null;
 	private WangKePartition wangke = new WangKePartition();
-	private String[] NSAstr;
+	private String[] NSAstr;// ={"workclass","education","marital_status","race","relationship","sex"};
 	private int Lvalue = 0;
 	private List<List<Map<String, Object>>> BlockListRandResult;
 	private List<List<Map<String, Object>>> WangKePartitionResult;
@@ -115,8 +118,8 @@ public class ShowPartition extends HttpServlet {
 			}
 
 			// 按属性相关性的顺序将集合划成分组
-			//test.DoPartition(NSAstr, l, 0);// type=0 表示用L多样性检测器 2015.1.9
-			 test.DoPartition(NSAstr, l, 1);// type=1 表示用递归(c,L)多样性检测器
+			test.DoPartition(NSAstr, l, 0);// type=0 表示用L多样性检测器 2015.1.9
+			 //test.DoPartition(NSAstr, l, 1);// type=1 表示用递归(c,L)多样性检测器
 			// 2015.1.9
 			request.setAttribute("columncolrelationList", columncolrelationList);
 			request.setAttribute("resultList", test.resultList);
@@ -157,11 +160,11 @@ public class ShowPartition extends HttpServlet {
 		// 2015.1.4 start
 		List<List<String>> SABlockList = anatomization.RandomSwap(
 				anatomization.STBlockList, "occupation");// 用于生成随机替换的SA集合
-		WekaType wekatype = new WekaType();
+	/*	WekaType wekatype = new WekaType();
 		wekatype.DataToFileForAT(
 				"D:/WekaData/Anatomization" + wekatype.TimeToStr(),
 				test.resultList, SABlockList);// 生成用于weka的数据文件
-		// end
+*/		// end
 		RequestDispatcher dispatcher = request
 				.getRequestDispatcher("Anatomization.jsp");
 		dispatcher.forward(request, response);
@@ -215,8 +218,9 @@ public class ShowPartition extends HttpServlet {
 					List<Map<String, Object>> originalList = myRandomization
 							.GetOriginalList(Common.DESCARTESTABLE);
 					// myRandomization.descartesList
-					Common.DESCARTESLIST = myRandomization.CreateDescartes(
-							originalList, this.NSAstr);
+					/*Common.DESCARTESLIST = myRandomization.CreateDescartes(
+							originalList, this.NSAstr);*/
+					Common.DESCARTESLIST = originalList;
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -293,10 +297,10 @@ public class ShowPartition extends HttpServlet {
 			BlockDetailListRandResult.add(NewBlock);
 		}
 		this.wangke.WangkeRandomSAResult = BlockDetailListRandResult;
-		WekaType wekatype = new WekaType();
+		/*WekaType wekatype = new WekaType();
 
 		wekatype.DataToWeka("D:/WekaData/wangke" + wekatype.TimeToStr(),
-				BlockDetailListRandResult);
+				BlockDetailListRandResult);*/
 		request.setAttribute("resultList", BlockDetailListRandResult);
 		// 计算查询准确率
 		/*
@@ -327,8 +331,10 @@ public class ShowPartition extends HttpServlet {
 					List<Map<String, Object>> originalList = myRandomization
 							.GetOriginalList(Common.DESCARTESTABLE);
 					// myRandomization.descartesList
-					Common.DESCARTESLIST = myRandomization.CreateDescartes(
-							originalList, attrs);
+//					Common.DESCARTESLIST = myRandomization.CreateDescartes(
+//							originalList, attrs);
+					// 修改20150320
+					Common.DESCARTESLIST = originalList;
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

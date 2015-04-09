@@ -63,7 +63,7 @@
 			<td width="10%" style="background:gray;">age</td>
 			<td width="5%" style="background:gray;">sex</td>
 			<td width="10%" style="background:gray;">education</td>
-			<td width="15%" style="background:gray;">maritalstatus</td>
+			<td width="15%" style="background:gray;">marital_status</td>
 			<td width="10%" style="background:gray;">workclass</td>
 			<td width="10%" style="background:gray;">relationship</td>
 			<td width="10%" style="background:gray;">race</td>
@@ -81,7 +81,7 @@
 			<td><%=(temp.get("age"))%></td>
 			<td><%=(temp.get("sex"))%></td>
 			<td><%=(temp.get("education"))%></td>
-			<td><%=(temp.get("maritalstatus"))%></td>
+			<td><%=(temp.get("marital_status"))%></td>
 			<td><%=(temp.get("workclass"))%></td>
 			<td><%=(temp.get("relationship"))%></td>
 			<td><%=(temp.get("race"))%></td>

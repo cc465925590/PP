@@ -29,6 +29,13 @@
 				   }
 				   });
 	}
+	function SelectAll() {
+		 var checkboxs=document.getElementsByName("attr");
+		 for (var i=0;i<checkboxs.length;i++) {
+		  var e=checkboxs[i];
+		  e.checked=!e.checked;
+		 }
+		}
 </script>
 <body>
 	<%
@@ -45,7 +52,7 @@
 				<td><input value="age" id="age" name="attr" type="checkbox">age</td>
 				<td><input value="sex" name="attr" type="checkbox">sex</td>
 				<td><input value="education" name="attr" type="checkbox">education</td>
-				<td><input value="maritalstatus" name="attr" type="checkbox">maritalstatus</td>
+				<td><input value="marital_status" name="attr" type="checkbox">marital_status</td>
 				<td><input value="workclass" name="attr" type="checkbox">workclass</td>
 				<td><input value="relationship" name="attr" type="checkbox">relationship</td>
 				<td><input value="race" name="attr" type="checkbox">race</td>
@@ -81,7 +88,7 @@
 			<td><%=(temp.get("age"))%></td>
 			<td><%=(temp.get("sex"))%></td>
 			<td><%=(temp.get("education"))%></td>
-			<td><%=(temp.get("maritalstatus"))%></td>
+			<td><%=(temp.get("marital_status"))%></td>
 			<td><%=(temp.get("workclass"))%></td>
 			<td><%=(temp.get("relationship"))%></td>
 			<td><%=(temp.get("race"))%></td>

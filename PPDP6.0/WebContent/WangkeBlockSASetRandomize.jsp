@@ -52,7 +52,7 @@
 			<td><%=(temp.get("age"))%></td>
 			<td><%=(temp.get("sex"))%></td>
 			<td><%=(temp.get("education"))%></td>
-			<td><%=(temp.get("maritalstatus"))%></td>
+			<td><%=(temp.get("marital_status"))%></td>
 			<td><%=(temp.get("workclass"))%></td>
 			<td><%=(temp.get("relationship"))%></td>
 			<td><%=(temp.get("race"))%></td>

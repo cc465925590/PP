@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import cc.ppdp.util.DataUtil;
+import cc.ppdp.model.ColumnColrelation;
 import cc.ppdp.model.RBRecord;
 import cc.ppdp.model.SubBlock;
 import cc.ppdp.util.AccessConnet;
@@ -545,7 +547,88 @@ public class Partition {
 		return MaxL;
 	}
 
-	public static void main(String[] args) {
+	/** 扰动20150320 */
+	private void DoRandom(List<List<SubBlock>> result) {
+		for (List<SubBlock> SubBlockList : result) {
+			for (SubBlock block : SubBlockList) {
+				List<String> SAset = new ArrayList<String>();
+				for (Map<String, Object> record : block.recordList) {
+					SAset.add(record.get(Common.SA).toString());
+				}
+				for (Map<String, Object> record : block.recordList) {
+					SAset.add(record.get(Common.SA).toString());
+				}
+				for (Map<String, Object> record : block.recordList) {
+					int index = new Random().nextInt(SAset.size());
+					record.put(Common.SA, SAset.get(index));
+				}
+			}
+		}
+	}
+
+	/**
+	 * GLP的预处理-生成每个元组的具有所有NSAs相同值的SA值的集合
+	 * 
+	 * @serialData 2014.12.2
+	 */
+	private void InitialNLP(List<Map<String, Object>> DataSet, String[] NSAs,
+			String SA) {
+		for (int i = 0; i < DataSet.size(); i++) {
+			if (DataSet.get(i).get("NLPSASet") == null) {
+				DataSet.get(i).put("NLPSASet", new HashSet<String>());
+			}
+			@SuppressWarnings("unchecked")
+			Set<String> GLPSASet1 = (Set<String>) DataSet.get(i)
+					.get("NLPSASet");
+			GLPSASet1.add((String) DataSet.get(i).get(SA));
+			// 寻找NSAs都相等的元组
+			for (int j = i + 1; j < DataSet.size(); j++) {
+				boolean flag = true;
+				for (String nsa : NSAs) {
+					if (!DataSet.get(i).get(nsa)
+							.equals(DataSet.get(j).get(nsa))) {
+						flag = false;
+						break;
+					}
+				}
+				// 如果所有的NSAs的值都相等
+				if (flag) {
+					GLPSASet1.add((String) DataSet.get(j).get(SA));
+					if (DataSet.get(j).get("NLPSASet") == null) {
+						DataSet.get(j).put("NLPSASet", new HashSet<String>());
+					} else {
+						@SuppressWarnings("unchecked")
+						Set<String> GLPSASet = (Set<String>) DataSet.get(j)
+								.get("NLPSASet");
+						GLPSASet.add((String) DataSet.get(i).get(SA));
+					}
+				}
+			}
+			 System.out.println("第"+i+"条记录");
+		}
+	}
+
+	/**
+	 * 计算一个块的NLP
+	 * 
+	 * @param SGSet为最终发布时该块中的SA的值的集合
+	 */
+	@SuppressWarnings("unchecked")
+	private float NLP(List<Map<String, Object>> BlockSet, Set<String> SGSet) {
+		float probility = 0.0f;// 值不在真是SA值集合中的概率
+		for (Map<String, Object> obj : BlockSet) {
+			int sum = 0;
+			Set<String> NLPSet = (Set<String>) obj.get("NLPSASet");
+			for (String sa : SGSet) {
+				if (!NLPSet.contains(sa))
+					sum++;
+			}
+			probility = probility + (float) sum / (float) SGSet.size();
+		}
+		return probility;
+	}
+
+	public static void main(String[] args) throws SQLException {
 		/*
 		 * Partition test = new Partition(); test.DoPartition(null, 1); for
 		 * (LinkedList<Map<String, Object>> tempList : test.resultList) { for
@@ -555,6 +638,65 @@ public class Partition {
 		/*
 		 * int L = 5; float k = 1.0f / L; System.out.println(k);
 		 */
-		System.out.println(Partition.class.getName());
+		//"age",
+		String[] attrs = {// "sex", 
+				//"education",
+				//"marital_status", "workclass", "relationship"
+				//, "race"
+				"sex",
+				"education",
+				"marital_status",
+				"workclass",
+				"relationship", "race","age"
+				};
+		String[] NSAstr;
+		ColumnColrelation[] colObj;
+		LinkedList<ColumnColrelation> columncolrelationList = new LinkedList<ColumnColrelation>();
+		colObj = new Correlation().showAllCol(attrs);
+		NSAstr = new String[colObj.length];
+		int x = 0;
+		for (ColumnColrelation columncolrelation : colObj) {
+			NSAstr[x] = columncolrelation.getColName();
+			columncolrelationList.add(columncolrelation);
+			x++;
+		}
+		Partition partition = new Partition();
+		// 分组操作
+		int Ldiversity = 5;
+		int type = 0;
+		partition.DoPartition(NSAstr, Ldiversity, type);
+		// partition.resultList 为划分好的块
+		// 进行细化操作
+		List<List<SubBlock>> result = partition.RefiningPartition(
+				partition.resultList, Ldiversity);
+		List<Map<String, Object>> DataSet = new ArrayList<Map<String, Object>>();
+		for (List<SubBlock> SubBlockList : result) {
+			for (SubBlock block : SubBlockList) {
+				List<String> SAset = new ArrayList<String>();
+				for (Map<String, Object> record : block.recordList) {
+					DataSet.add(record);
+				}
+			}
+		}
+//		partition.InitialNLP(DataSet,NSAstr,Common.SA);//
+		partition.DoRandom(result);
+		// 计算GLP
+		/*float GLPValue = 0.0f;
+		for (List<SubBlock> SubBlockList : result) {
+			for (SubBlock block : SubBlockList) {
+				Set<String> SGSet = new HashSet<String>();
+				for (Map<String, Object> record : block.recordList) {
+					SGSet.add(record.get(Common.SA).toString());
+				}
+				GLPValue = GLPValue + partition.NLP(block.recordList, SGSet);
+			}
+		}
+		GLPValue = GLPValue / DataSet.size();
+		System.out.println("GLP = " + GLPValue);*/
+		// 计算相对错误率
+		DataUtil OlddataUtil = new DataUtil();
+		OlddataUtil.GetDataForCountTest();
+		float score = OlddataUtil.ComputeRelativeCor(OlddataUtil.TestRecordList, DataSet, Common.NSAs);
+		System.out.println(score);
 	}
 }

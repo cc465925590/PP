@@ -156,9 +156,14 @@ public class MyRandomization {
 		for (Map<String, Object> tempobj : recordList) {
 			Boolean flag2 = true;
 			for (String tempNSA : NSA) {
-				if (!record.get(tempNSA).equals(tempobj.get(tempNSA))) {
-					flag2 = false;
-					break;
+				try {
+					if (!record.get(tempNSA).equals(tempobj.get(tempNSA))) {
+						flag2 = false;
+						break;
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+					System.out.println();
 				}
 			}
 			if (flag2
@@ -202,6 +207,7 @@ public class MyRandomization {
 		Float est = 0.0f;
 		Float sum = 0.0f;
 		for (int i = 0; i < DescartesList.size(); i++) {
+			System.out.println("比较第"+i+"条");
 			Map<String, Object> oldobj = DescartesList.get(i);
 			Iterator<LinkedList<Map<String, Object>>> olditerator = BlockListResult
 					.iterator();
@@ -239,8 +245,14 @@ public class MyRandomization {
 			Map<String, Object> oldobj = DescartesList.get(i);
 			Iterator<List<Map<String, Object>>> olditerator = BlockListResult
 					.iterator();
-			Iterator<List<Map<String, Object>>> iterator = BlockDetailListRandResult
-					.iterator();
+			Iterator<List<Map<String, Object>>> iterator = null;
+			try {
+				iterator = BlockDetailListRandResult
+						.iterator();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			while (olditerator.hasNext()) {
 				if (FindRecord(oldobj, olditerator.next(), NSA)) {
 					act++;
@@ -286,7 +298,9 @@ public class MyRandomization {
 			adult.put("occupation", rs.getString(9));
 			tempList.add(adult);
 		}
-		Map<Integer, Object> flagMap = new HashMap<Integer, Object>();
+		//20150320 修改
+		/*Map<Integer, Object> flagMap = new HashMap<Integer, Object>();
+		// 随机选取100条
 		for (int i = 0; i < 100; i++) {
 			Integer randnum = new Random().nextInt(tempList.size());
 			while (flagMap.get(randnum) != null) {
@@ -294,8 +308,14 @@ public class MyRandomization {
 			}
 			flagMap.put(randnum, new Object());
 			originalList.add(tempList.get(randnum));
+		}*/
+		// 每隔10个选一条
+		for (int i = 0; i < tempList.size(); i+=10) {
+			Integer randnum = new Random().nextInt(10);
+			originalList.add(tempList.get(i+randnum));
 		}
 		return originalList;
+		//return tempList;
 	}
 
 	// 取笛卡尔积的记录集
