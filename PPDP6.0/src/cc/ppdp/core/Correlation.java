@@ -13,7 +13,7 @@ import cc.ppdp.view.ShowPartition;
 public class Correlation {
 	public ColumnColrelation[] showAllCol(String[] str) throws SQLException {
 		String[] col = str;
-		String SAcol = "occupation";
+		String SAcol = Common.SA;
 		ColumnColrelation[] colObj = new ColumnColrelation[col.length];
 		int i = 0;
 		for (String temp : col) {

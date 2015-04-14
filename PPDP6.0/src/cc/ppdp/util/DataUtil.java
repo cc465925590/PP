@@ -38,7 +38,7 @@ public class DataUtil {
 			while (rs.next()) {
 				Map<String, Object> adult = new HashMap<String, Object>();
 				//adult_TDS
-				/*adult.put("ID", rs.getInt(1));
+				adult.put("ID", rs.getInt(1));
 				adult.put("age", rs.getInt(2));
 				adult.put("workclass", rs.getString(3));
 				adult.put("education", rs.getString(5));
@@ -47,17 +47,17 @@ public class DataUtil {
 				adult.put("relationship", rs.getString(9));
 				adult.put("race", rs.getString(10));
 				adult.put("sex", rs.getString(11));
-				adult.put("class", rs.getString(16));*/
+				adult.put("class", rs.getString(16));
 				// adult_o
-				adult.put("ID", rs.getString(1));
-				adult.put("age", rs.getString(2));
-				adult.put("sex", rs.getString(3));
-				adult.put("education", rs.getString(4));
-				adult.put("marital_status", rs.getString(5));
-				adult.put("workclass", rs.getString(6));
-				adult.put("relationship", rs.getString(7));
-				adult.put("race", rs.getString(8));
-				adult.put("occupation", rs.getString(9));
+//				adult.put("ID", rs.getString(1));
+//				adult.put("age", rs.getString(2));
+//				adult.put("sex", rs.getString(3));
+//				adult.put("education", rs.getString(4));
+//				adult.put("marital_status", rs.getString(5));
+//				adult.put("workclass", rs.getString(6));
+//				adult.put("relationship", rs.getString(7));
+//				adult.put("race", rs.getString(8));
+//				adult.put("occupation", rs.getString(9));
 				// for (String NSA : Common.NSAs) {
 				// this.Attr_ValueSetMap.get(NSA).add(adult.get(NSA));
 				// }

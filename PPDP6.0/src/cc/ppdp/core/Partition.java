@@ -18,6 +18,7 @@ import cc.ppdp.model.RBRecord;
 import cc.ppdp.model.SubBlock;
 import cc.ppdp.util.AccessConnet;
 import cc.ppdp.util.Common;
+import cc.ppdp.util.CountTest;
 
 public class Partition {
 	private AccessConnet ac;
@@ -628,7 +629,66 @@ public class Partition {
 		return probility;
 	}
 
-	public static void main(String[] args) throws SQLException {
+	/**改成第四章算法,并计算count查询的相对错误率
+	 * @throws SQLException */
+	public void FourCountTest() throws SQLException{
+		String[] NSAstr;
+		ColumnColrelation[] colObj;
+		LinkedList<ColumnColrelation> columncolrelationList = new LinkedList<ColumnColrelation>();
+		colObj = new Correlation().showAllCol(Common.NSAs);
+		NSAstr = new String[colObj.length];
+		int x = 0;
+		for (ColumnColrelation columncolrelation : colObj) {
+			NSAstr[x] = columncolrelation.getColName();
+			columncolrelationList.add(columncolrelation);
+			x++;
+		}
+		Partition partition = new Partition();
+		// 分组操作
+		int Ldiversity = 5;
+		int type = 0;
+		partition.DoPartition(NSAstr, Ldiversity, type);
+		// partition.resultList 为划分好的块
+		// 复制partition.resultList
+		LinkedList<LinkedList<Map<String, Object>>> RDBlockList = new LinkedList<LinkedList<Map<String,Object>>>();
+		for(LinkedList<Map<String, Object>>block:partition.resultList){
+			LinkedList<Map<String, Object>>tempblock = new LinkedList<Map<String,Object>>();
+			for(Map<String, Object> obj:block){
+				Map<String, Object> record = new HashMap<String, Object>();
+				for(String NSA:Common.NSAs){
+					record.put(NSA, obj.get(NSA));
+				}
+				record.put(Common.SA, obj.get(Common.SA));
+				tempblock.add(record);
+			}
+			RDBlockList.add(tempblock);
+		}
+		
+		// 对RDBlockList进行细化操作
+		List<List<SubBlock>> result = partition.RefiningPartition(
+				RDBlockList, Ldiversity);
+		List<Map<String, Object>> DataSet = new ArrayList<Map<String, Object>>();
+		for (List<SubBlock> SubBlockList : result) {
+			for (SubBlock block : SubBlockList) {
+				for (Map<String, Object> record : block.recordList) {
+					DataSet.add(record);
+				}
+			}
+		}
+		partition.DoRandom(result);
+		
+		// 计算相对错误率
+		CountTest countTest = new CountTest();
+		List<Map<String, Object>> queryList = countTest.CreateCountQuery(20,
+				Common.TABLENAME);
+		float avgResult = countTest.CountForGen(partition.resultList,
+				RDBlockList, queryList);
+		System.out.println("avgResult = " + avgResult);
+		
+	}
+	
+	/**第五章测试*/
+	public void FiveCountTest() throws SQLException{
 		/*
 		 * Partition test = new Partition(); test.DoPartition(null, 1); for
 		 * (LinkedList<Map<String, Object>> tempList : test.resultList) { for
@@ -698,5 +758,9 @@ public class Partition {
 		OlddataUtil.GetDataForCountTest();
 		float score = OlddataUtil.ComputeRelativeCor(OlddataUtil.TestRecordList, DataSet, Common.NSAs);
 		System.out.println(score);
+	}
+	
+	public static void main(String[] args) throws SQLException {
+
 	}
 }
