@@ -54,15 +54,27 @@ public class Partition {
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
 				Map<String, Object> adult = new HashMap<String, Object>();
-				adult.put("ID", rs.getString(1));
-				adult.put("age", rs.getString(2));
-				adult.put("sex", rs.getString(3));
-				adult.put("education", rs.getString(4));
-				adult.put("marital_status", rs.getString(5));
-				adult.put("workclass", rs.getString(6));
-				adult.put("relationship", rs.getString(7));
-				adult.put("race", rs.getString(8));
-				adult.put("occupation", rs.getString(9));
+				//adult_TDS
+				adult.put("ID", rs.getInt(1));
+				adult.put("age", rs.getInt(2));
+				adult.put("workclass", rs.getString(3));
+				adult.put("education", rs.getString(5));
+				adult.put("marital_status", rs.getString(7));
+				adult.put("occupation", rs.getString(8));
+				adult.put("relationship", rs.getString(9));
+				adult.put("race", rs.getString(10));
+				adult.put("sex", rs.getString(11));
+				adult.put("class", rs.getString(16));
+				// adult_o
+//				adult.put("ID", rs.getString(1));
+//				adult.put("age", rs.getString(2));
+//				adult.put("sex", rs.getString(3));
+//				adult.put("education", rs.getString(4));
+//				adult.put("marital_status", rs.getString(5));
+//				adult.put("workclass", rs.getString(6));
+//				adult.put("relationship", rs.getString(7));
+//				adult.put("race", rs.getString(8));
+//				adult.put("occupation", rs.getString(9));
 				BlockSet.add(adult);
 			}
 		} catch (SQLException e) {
@@ -73,7 +85,7 @@ public class Partition {
 
 		// String[] str = { "sex", "education" };
 		try {
-			Partitioning(BlockSet, l, NSA, 0, "occupation", type);
+			Partitioning(BlockSet, l, NSA, 0, Common.SA, type);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -318,7 +330,7 @@ public class Partition {
 				// step1: 进行桶划分
 				Map<String, List<Map<String, Object>>> buckets = new HashMap<String, List<Map<String, Object>>>();
 				for (Map<String, Object> record : block) {
-					String SA = (String) record.get("occupation");
+					String SA = record.get(Common.SA).toString();
 					if (buckets.get(SA) == null) {
 						buckets.put(SA, new ArrayList<Map<String, Object>>());
 						buckets.get(SA).add(record);
@@ -438,7 +450,7 @@ public class Partition {
 		for (SubBlock subblock : subBlockList) {
 			boolean flag = false;
 			for (Map<String, Object> obj : subblock.recordList) {
-				if (obj.get("occupation").equals(record.Obj.get("occupation")))
+				if (obj.get(Common.SA).toString().equals(record.Obj.get(Common.SA).toString()))
 					flag = true;
 			}
 			if (!flag) {
@@ -632,20 +644,21 @@ public class Partition {
 	/**改成第四章算法,并计算count查询的相对错误率
 	 * @throws SQLException */
 	public void FourCountTest() throws SQLException{
-		String[] NSAstr;
-		ColumnColrelation[] colObj;
-		LinkedList<ColumnColrelation> columncolrelationList = new LinkedList<ColumnColrelation>();
-		colObj = new Correlation().showAllCol(Common.NSAs);
-		NSAstr = new String[colObj.length];
-		int x = 0;
-		for (ColumnColrelation columncolrelation : colObj) {
-			NSAstr[x] = columncolrelation.getColName();
-			columncolrelationList.add(columncolrelation);
-			x++;
-		}
+//		String[] NSAstr;
+//		ColumnColrelation[] colObj;
+//		LinkedList<ColumnColrelation> columncolrelationList = new LinkedList<ColumnColrelation>();
+//		colObj = new Correlation().showAllCol(Common.NSAs);
+//		NSAstr = new String[colObj.length];
+//		int x = 0;
+//		for (ColumnColrelation columncolrelation : colObj) {
+//			NSAstr[x] = columncolrelation.getColName();
+//			columncolrelationList.add(columncolrelation);
+//			x++;
+//		}
+		String[] NSAstr = {"relationship","sex","marital_status","education","workclass"};
 		Partition partition = new Partition();
 		// 分组操作
-		int Ldiversity = 5;
+		int Ldiversity = Common.LDIVERSITY;
 		int type = 0;
 		partition.DoPartition(NSAstr, Ldiversity, type);
 		// partition.resultList 为划分好的块
@@ -761,6 +774,7 @@ public class Partition {
 	}
 	
 	public static void main(String[] args) throws SQLException {
-
+		Partition test = new Partition();
+		test.FourCountTest();
 	}
 }
